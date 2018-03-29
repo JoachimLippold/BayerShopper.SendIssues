@@ -102,3 +102,6 @@ ENV/
 
 # configurations
 *.cfg
+
+# folder with excel files...
+files/

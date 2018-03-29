@@ -8,8 +8,11 @@ Upload der Issues nach Salesforce
 from __future__ import print_function
 
 import os, sys
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'classes')))
+
+import datetime
 
 import logging
 import json
@@ -21,6 +24,7 @@ from simple_salesforce import Salesforce, SalesforceLogin, SalesforceAuthenticat
 import requests
 
 from issues import Issues
+from classes.salesforce_connect import SalesforceConnect
 
 class App(object):
     u"""Hauptklasse der Applikation. Hier werden die grundlegenden Applikationsglobalen Variablen initialisiert.
@@ -170,22 +174,35 @@ class App(object):
 if __name__ == '__main__':
     app = App()
     app.logger.debug("object '{:s}' initialized..." . format(type(app).__name__))
+    app.logger.debug("options: {0}, args: {1}" . format(app.options, app.args))
+    app.logger.debug("sys.path: {0}" . format(sys.path))
 
-    print(sys.path)
+    tour_date = '16.02.2018'
+
+#    sfc = SalesforceConnect(app)
+#    results = sfc.getInspectionIds("16.02.2018")
+#    print("sfc = {}" . format(results))
+    issues = Issues(app, tour_date)
 
 #    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DApaIAG', data)
 
-    records = app.salesforce.query_all(u"""
-        SELECT Id, Shopper_Contract__c, Name, SW_Issue__c, BT_Issue__c, AD_Issue__c, CreatedDate, Status__c
-            FROM Shopper_Inspection__c 
-            WHERE Id IN (
-                'a3wD0000001DBEcIAO', 'a3wD0000001DB6mIAG', 'a3wD0000001DBBeIAO', 'a3wD0000001DBFAIA4',
-                'a3wD0000001DAo4IAG', 'a3wD0000001DAeeIAG', 'a3wD0000001DAfMIAW')""")
-
+#    query = u"""
+#        SELECT Id, Shopper_Contract__c, Name, SW_Issue__c, BT_Issue__c, AD_Issue__c, CreatedDate, Status__c
+#            FROM Shopper_Inspection__c 
+#            WHERE 
+#            CreatedDate > {:s} AND CreatedDate < {:s}""" \
+#            . format(from_date.strftime(SalesforceConnect.SOQL_DATEFORMAT), 
+#                to_date.strftime(SalesforceConnect.SOQL_DATEFORMAT))
+#
+##                Id IN (
+##                    'a3wD0000001DBEcIAO', 'a3wD0000001DB6mIAG', 'a3wD0000001DBBeIAO', 'a3wD0000001DBFAIA4',
+##                    'a3wD0000001DAo4IAG', 'a3wD0000001DAeeIAG', 'a3wD0000001DAfMIAW')  AND
+##
+#    print("query = {:s}" . format(query))
+#    records = app.salesforce.query_all(query)
+#
 #    for record in records['records']:
 #        print(u"-" * 21 + "+" + "-"*80)
 #        for key, value in record.items():
 #            if key <> 'attributes':
 #                print(u"{:<20} | {}" . format(key, value))
-
-    issues = Issues(app)
