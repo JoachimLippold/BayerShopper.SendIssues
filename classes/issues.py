@@ -27,8 +27,9 @@ class Issues(object):
     row_object = (None,)*1
     issue_object_template = { u'id': None, u'data': { u'AD_Issue__c': None, u'BT_Issue__c': None, u'SW_Issue__c': None }}
 
-    def __init__(self, app, tour_date):
+    def __init__(self, app, issue_file, tour_date):
         if not hasattr(app, 'salesforce'):
+            app.critical('Object \'app\' has no attribute \'salesforce\'')
             raise AttributeError('Object \'app\' has no attribute \'salesforce\'')
 
         self._app = app
@@ -36,13 +37,15 @@ class Issues(object):
 
         self.sfc = SalesforceConnect(app, tour_date)
 
-        self.workbook = xlrd.open_workbook('./files/Issues-2018KW09.xlsx', encoding_override="utf8")
+        self.workbook = xlrd.open_workbook(issue_file, encoding_override="utf8")
         self.sheets = self.workbook.sheet_names()
         self.sheet = self.workbook.sheet_by_name(self.sheets[0])
 
         cols = self.sheet.ncols
         for row_idx in range(0, self.sheet.nrows):
-            print('Row: {0:3d} - {1:s}' . format(row_idx, self.getRowObject(self.sheet.row(row_idx))))
+            self._app.logger.debug('Row: {0:3d} - {1:s}' . format(row_idx, self.getRowObject(self.sheet.row(row_idx))))
+            if not self._app.options.quiet:
+                self._app.printProgressBar(row_idx, self.sheet.nrows)
 
 
 

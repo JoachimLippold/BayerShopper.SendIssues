@@ -21,6 +21,7 @@ class SalesforceConnect(object):
 
     def __init__(self, app, inspection_date):
         if not hasattr(app, 'salesforce'):
+            app.critical('Object \'app\' has no attribute \'salesforce\'')
             raise AttributeError('Object \'app\' has no attribute \'salesforce\'')
 
         self.app = app

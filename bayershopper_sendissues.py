@@ -44,6 +44,7 @@ class App(object):
         self.initOptionParser()
         self.initLogging()
         self.initSalesforce()
+        self.checkArguments()
 
 
     def initConfig(self):
@@ -122,8 +123,14 @@ class App(object):
                 -h, --help
                     Hilfetext
         """
-        USAGE = "usage: %prog [options]"
-        DESCRIPTION = """Wrapper zum Abgleich des Bayer-Datenbestandes mit dem Sit&Watch-Datenbestand"""
+        USAGE = "usage: %prog [options] /path/to/excelfile tourdate"
+        DESCRIPTION = u"""Kommandozeilentool zum Upload der Issues zum Salesforce-Server von Bayer.
+Das Skript erwartet als Parameter den Pfad zur Excel-Datei und das Datum zu dem die Inspections markiert
+wurden. Die Excel-Datei muss dabei mindestens 4 Spalten enthalten. Die Spalte "A" enthält entweder
+die Salesforce-Id der Apotheke oder die Salesforce-Id der Inspection. Das Skript ermittelt selbstständig,
+welche ID angegeben wurde. Die Spalten "B" bis "D" enthalten die Issue-Texte. Die Reihenfolge der Spalten
+spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beginnen.
+        """
         VERSION = "1.0"
 
         parser = OptionParser(usage=USAGE, version=VERSION, description=DESCRIPTION)
@@ -132,7 +139,25 @@ class App(object):
                 help="Loglevel: [" + ', '.join([value for key, value in self._loggingLevels.items()]) + ")")
         parser.add_option("-l", "--logging", dest="logging", default=self.APPNAME + ".log",
                 help="Name and path of logfile")
+        parser.add_option("-q", "--quiet", dest="quiet", action="store_true", help="don't show progress")
+
         (self.options, self.args) = parser.parse_args()
+
+
+    def checkArguments(self):
+        if len(self.args) < 2:
+            self.logger.critical('Two few arguments found.')
+            sys.exit('Zu wenig Argumente.')
+
+        if not os.path.isfile(self.args[0]):
+            self.logger.critical('File not found: {:s}' . format(self.args[0]))
+            sys.exit('Datei \'{:s}\' nicht gefunden' . format(self.args[0]))
+
+        try:
+            date = datetime.datetime.strptime(self.args[1], '%d.%m.%Y')
+        except ValueError, msg:
+            self.logger.critical('{:s} is not a valid date' . format(self.args[1]))
+            sys.exit('\'{:s}\' ist kein gültiges Datum' . format(self.args[1]))
 
 
     def initSalesforce(self):
@@ -170,19 +195,37 @@ class App(object):
         return self._instance
 
 
+    def printProgressBar(self, iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
+        u"""
+        Call in a loop to create terminal progress bar
+        @params:
+            iteration   - Required : current iteration (Int)
+            total       - Required : total iterations (Int)
+            prefix      - Optional : prefix string (Str)
+            suffix      - Optional : suffix string (Str)
+            decimals    - Optional : positive number of decimals in percent complete (Int)
+            length      - Optional : character length of bar (Int)
+            fill        - Optional : bar fill character (Str)
+        """
+        percent = ("{0:." + str(decimals) + "f}") . format(100 * (iteration / float(total)))
+        filledLength = int(length * iteration // total)
+        bar = fill * filledLength + '-' * (length - filledLength)
+        #print('\r%s [%s] %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+        sys.stdout.write('\r%s [%s] %s%% %s' % (prefix, bar, percent, suffix))
+        sys.stdout.flush()
+        if iteration == total:
+            sys.stdout.write("\n")
+
+
 
 if __name__ == '__main__':
     app = App()
-    app.logger.debug("object '{:s}' initialized..." . format(type(app).__name__))
     app.logger.debug("options: {0}, args: {1}" . format(app.options, app.args))
-    app.logger.debug("sys.path: {0}" . format(sys.path))
-
-    tour_date = '16.02.2018'
 
 #    sfc = SalesforceConnect(app)
 #    results = sfc.getInspectionIds("16.02.2018")
 #    print("sfc = {}" . format(results))
-    issues = Issues(app, tour_date)
+    issues = Issues(app, app.args[0], app.args[1])
 
 #    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DApaIAG', data)
 
