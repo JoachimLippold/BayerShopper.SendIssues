@@ -16,6 +16,7 @@ import string
 import xlrd
 
 from salesforce_connect import SalesforceConnect
+from simple_salesforce.exceptions import SalesforceGeneralError
 
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'exceptions')))
 
@@ -42,10 +43,17 @@ class Issues(object):
         self.sheet = self.workbook.sheet_by_name(self.sheets[0])
 
         cols = self.sheet.ncols
-        for row_idx in range(0, self.sheet.nrows):
-            self._app.logger.debug('Row: {0:3d} - {1:s}' . format(row_idx, self.getRowObject(self.sheet.row(row_idx))))
+        for row_idx in range(1, self.sheet.nrows):
+            row = self.getRowObject(self.sheet.row(row_idx))
+            self._app.logger.debug('Row: {0:3d} - Id: {1:s}, Data: {2:s}' . format(row_idx, row['id'], row['data']))
+            try:
+                self._app.salesforce.Shopper_Inspection__c.update(row['id'], row['data'])
+            except SalesforceGeneralError, msg:
+                self._app.logger.critical(msg)
+                sys.exit(msg)
+
             if not self._app.options.quiet:
-                self._app.printProgressBar(row_idx, self.sheet.nrows)
+                self._app.printProgressBar(row_idx, self.sheet.nrows, length=100)
 
 
 

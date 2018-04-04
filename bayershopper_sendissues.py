@@ -195,7 +195,7 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
         return self._instance
 
 
-    def printProgressBar(self, iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#'):
+    def printProgressBar(self, iteration, total, prefix = '', suffix = '', decimals = 1, length = 70, fill = '#'):
         u"""
         Call in a loop to create terminal progress bar
         @params:
@@ -210,8 +210,7 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
         percent = ("{0:." + str(decimals) + "f}") . format(100 * (iteration / float(total)))
         filledLength = int(length * iteration // total)
         bar = fill * filledLength + '-' * (length - filledLength)
-        #print('\r%s [%s] %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
-        sys.stdout.write('\r%s [%s] %s%% %s' % (prefix, bar, percent, suffix))
+        sys.stdout.write('\r{:s} [{:s}] {:s}% {:s}' . format(prefix, bar, percent, suffix))
         sys.stdout.flush()
         if iteration == total:
             sys.stdout.write("\n")
