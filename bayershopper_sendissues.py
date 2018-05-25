@@ -3,6 +3,8 @@
 
 u"""
 Upload der Issues nach Salesforce
+
+TODO: Inspections ohne Issues markieren als "keine Meldung" und mit Besuchsdatum versehen
 """
 
 from __future__ import print_function
@@ -44,7 +46,7 @@ class App(object):
         self.initOptionParser()
         self.initLogging()
         self.initSalesforce()
-        self.checkArguments()
+        #self.checkArguments()
 
 
     def initConfig(self):
@@ -146,7 +148,7 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
 
     def checkArguments(self):
         if len(self.args) < 2:
-            self.logger.critical('Two few arguments found.')
+            self.logger.critical('Too few arguments')
             sys.exit('Zu wenig Argumente.')
 
         if not os.path.isfile(self.args[0]):
@@ -213,7 +215,7 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
         sys.stdout.write('\r{:s} [{:s}] {:s}% {:s}' . format(prefix, bar, percent, suffix))
         sys.stdout.flush()
         if iteration == total:
-            sys.stdout.write("\n")
+            sys.stdout.write("\n\n")
 
 
 
@@ -221,12 +223,13 @@ if __name__ == '__main__':
     app = App()
     app.logger.debug("options: {0}, args: {1}" . format(app.options, app.args))
 
-#    sfc = SalesforceConnect(app)
-#    results = sfc.getInspectionIds("16.02.2018")
-#    print("sfc = {}" . format(results))
+    sfc = SalesforceConnect(app, app.args[1])
+    results = sfc.getInspectionIds()
+    #print("sfc = {}" . format(results))
     issues = Issues(app, app.args[0], app.args[1])
 
 #    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DApaIAG', data)
+#    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DAoPIAW', {'Status__c': 'No issue', 'SW_Issue_Solved_Date__c': '2018-01-12T00:00:00Z'})
 
 #    query = u"""
 #        SELECT Id, Shopper_Contract__c, Name, SW_Issue__c, BT_Issue__c, AD_Issue__c, CreatedDate, Status__c

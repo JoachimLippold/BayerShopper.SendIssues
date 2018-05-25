@@ -26,7 +26,8 @@ class Issues(object):
 
     workbook, sheets, sheet, tour_date, sfc = (None,)*5
     row_object = (None,)*1
-    issue_object_template = { u'id': None, u'data': { u'AD_Issue__c': None, u'BT_Issue__c': None, u'SW_Issue__c': None }}
+    issue_object_template = { u'id': None, u'data': { u'AD_Issue__c': None, 
+            u'BT_Issue__c': None, u'SW_Issue__c': None, u'Status__c': None }}
 
     def __init__(self, app, issue_file, tour_date):
         if not hasattr(app, 'salesforce'):
@@ -45,7 +46,8 @@ class Issues(object):
         cols = self.sheet.ncols
         for row_idx in range(1, self.sheet.nrows):
             row = self.getRowObject(self.sheet.row(row_idx))
-            self._app.logger.debug('Row: {0:3d} - Id: {1:s}, Data: {2:s}' . format(row_idx, row['id'], row['data']))
+            self._app.logger.debug('Row: {0:3d} - Id: {1:s}, Data: {2:s}' . \
+                    format(row_idx, row['id'], row['data']))
             try:
                 self._app.salesforce.Shopper_Inspection__c.update(row['id'], row['data'])
             except SalesforceGeneralError, msg:
@@ -72,15 +74,19 @@ class Issues(object):
 
                 row_object[u'id'] = id
             elif caption.lower().startswith('ad'):
-                data[u'AD_Issue__c'] = cell_obj.value
+                data[u"AD_Issue__c"] = cell_obj.value
             elif caption.lower().startswith('bt'):
-                data[u'BT_Issue__c'] = cell_obj.value
+                data[u"BT_Issue__c"] = cell_obj.value
             elif caption.lower().startswith('sw'):
-                data[u'SW_Issue__c'] = cell_obj.value
+                data[u"SW_Issue__c"] = cell_obj.value
+            elif caption.lower().startswith('date') and cell_obj.value <> '':
+                data[u"SW_Issue_Solved_Date__c"] = cell_obj.value
+            elif caption.lower().startswith('status'):
+                data[u"Status__c"] = cell_obj.value
 
         row_object[u'data'] = data
         return row_object
 
 
 if __name__ == '__main__':
-    print("This module is not for execution...")
+    sys.exit("This module is not for execution...")

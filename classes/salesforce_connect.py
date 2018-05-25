@@ -35,7 +35,7 @@ class SalesforceConnect(object):
 
         query = u"""
             SELECT Shopper_Contract__c, Id FROM Shopper_Inspection__c 
-                WHERE CreatedDate > {:1} AND CreatedDate < {:1}""" . format(
+                WHERE CreatedDate > {:1} AND CreatedDate < {:2}""" . format(
                     from_date.strftime(self.SOQL_DATEFORMAT), \
                     to_date.strftime(self.SOQL_DATEFORMAT))
 
@@ -55,4 +55,4 @@ class SalesforceConnect(object):
                 
 
 if __name__ == '__main__':
-    print("This module is not for execution")
+    sys.exit("This module is not for execution")
