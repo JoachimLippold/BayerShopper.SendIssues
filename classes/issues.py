@@ -43,6 +43,8 @@ class Issues(object):
         self.sheets = self.workbook.sheet_names()
         self.sheet = self.workbook.sheet_by_name(self.sheets[0])
 
+        attributes = [attribute for attribute in dir(self._app.salesforce)]
+
         cols = self.sheet.ncols
         for row_idx in range(1, self.sheet.nrows):
             row = self.getRowObject(self.sheet.row(row_idx))

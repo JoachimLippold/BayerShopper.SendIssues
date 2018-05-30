@@ -52,7 +52,8 @@ class SalesforceConnect(object):
             results[contract] = inspection
 
         return results
-                
+
+
 
 if __name__ == '__main__':
     sys.exit("This module is not for execution")

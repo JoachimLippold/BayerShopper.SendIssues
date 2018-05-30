@@ -4,7 +4,7 @@
 u"""
 Upload der Issues nach Salesforce
 
-TODO: Inspections ohne Issues markieren als "keine Meldung" und mit Besuchsdatum versehen
+TODO: Tour-Datum prüfen, ob korrekt
 """
 
 from __future__ import print_function
@@ -225,7 +225,6 @@ if __name__ == '__main__':
 
     sfc = SalesforceConnect(app, app.args[1])
     results = sfc.getInspectionIds()
-    #print("sfc = {}" . format(results))
     issues = Issues(app, app.args[0], app.args[1])
 
 #    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DApaIAG', data)
