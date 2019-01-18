@@ -53,7 +53,6 @@ class Issues(object):
             try:
                 self._app.salesforce.Shopper_Inspection__c.update(row['id'], row['data'])
             except SalesforceGeneralError, msg:
-                self._app.logger.critical(msg)
                 sys.exit(msg)
 
             if not self._app.options.quiet:
