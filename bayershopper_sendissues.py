@@ -7,8 +7,6 @@ Upload der Issues nach Salesforce
 TODO: Tour-Datum prüfen, ob korrekt
 """
 
-from __future__ import print_function
-
 import os, sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -20,7 +18,7 @@ import logging
 import json
 
 from optparse import OptionParser
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 
 from simple_salesforce import Salesforce, SalesforceLogin, SalesforceAuthenticationFailed
 import requests
@@ -103,7 +101,8 @@ class App(object):
         except (StopIteration,):
             loggingLevel = logging.NOTSET
 
-        logging.basicConfig(filename=self.options.logging, format=self.config.get('logging', 'formatstring'), filemode='a')
+        logging.basicConfig(filename=self.options.logging, format=self.config.get('logging', 'formatstring'),
+                filemode='a')
         self.logger = logging.getLogger(self.APPNAME + ".logger")
         self.logger.setLevel(loggingLevel)
         self.logger.debug("options = {:s}" .  format(str(self.options)))
@@ -136,7 +135,7 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
         VERSION = "1.0"
 
         parser = OptionParser(usage=USAGE, version=VERSION, description=DESCRIPTION)
-        parser.add_option("-v", "--verbose", dest="verbose", default="ERROR", 
+        parser.add_option("-v", "--verbose", dest="verbose", default="ERROR",
                 choices=[value for key, value in self._loggingLevels.items()],
                 help="Loglevel: [" + ', '.join([value for key, value in self._loggingLevels.items()]) + ")")
         parser.add_option("-l", "--logging", dest="logging", default=self.APPNAME + ".log",
@@ -157,7 +156,7 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
 
         try:
             date = datetime.datetime.strptime(self.args[1], '%d.%m.%Y')
-        except ValueError, msg:
+        except ValueError as msg:
             self.logger.critical('{:s} is not a valid date' . format(self.args[1]))
             sys.exit('\'{:s}\' ist kein gültiges Datum' . format(self.args[1]))
 
@@ -170,18 +169,20 @@ spielt keine Rolle, jedoch müssen die Spaltennamen mit "AD", "SW" oder "BT" beg
             Zugriffe auf Salesforce können dann mit app.salesforce.<OBJECT>.<METHOD>() durchgeführt werden.
 
             Beispiel:
-                app.salesforce.Shopper_Inspection__c.update(<INSPECTION_ID>, { <KEY>: <VALUE>[, <KEY>: <VALUE>[, ...]] })
+                app.salesforce.Shopper_Inspection__c.update(<INSPECTION_ID>,
+                        { <KEY>: <VALUE>[, <KEY>: <VALUE>[, ...]] })
                 führt ein Update auf einen Datensatz der Tabelle Shopper_Inspection__c durch.
         """
         self.session = requests.Session()
         try:
-            self._session_id, self._sf_instance = SalesforceLogin(username=self.config.get('salesforce', 'soapUsername'), \
+            self._session_id, self._sf_instance = SalesforceLogin(
+                    username=self.config.get('salesforce', 'soapUsername'),
                     password=self.config.get('salesforce', 'soapPassword'),
-                    sf_version=self.config.get('salesforce', 'soapVersion'),
-                    sandbox=(self.config.get('salesforce', 'soapSandbox') == 'True'))
+                    sf_version=self.config.get('salesforce', 'soapVersion'))
+                    #sandbox=(self.config.get('salesforce', 'soapSandbox') == 'True'))
         except SalesforceAuthenticationFailed as e:
             self.logger.critical("login to salesforce failed: {:s}" . format(e.message))
-            print("Login to salesforce failed: {:s}" . format(e.message))
+            print("Login to salesforce failed: {:s}".format(e.message))
             exit()
 
         self.salesforce = Salesforce(instance=self._sf_instance, session_id=self._session_id, session=self.session)
@@ -226,27 +227,3 @@ if __name__ == '__main__':
     sfc = SalesforceConnect(app, app.args[1])
     results = sfc.getInspectionIds()
     issues = Issues(app, app.args[0], app.args[1])
-
-#    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DApaIAG', data)
-#    app.salesforce.Shopper_Inspection__c.update('a3wD0000001DAoPIAW', {'Status__c': 'No issue', 'SW_Issue_Solved_Date__c': '2018-01-12T00:00:00Z'})
-
-#    query = u"""
-#        SELECT Id, Shopper_Contract__c, Name, SW_Issue__c, BT_Issue__c, AD_Issue__c, CreatedDate, Status__c
-#            FROM Shopper_Inspection__c 
-#            WHERE 
-#            CreatedDate > {:s} AND CreatedDate < {:s}""" \
-#            . format(from_date.strftime(SalesforceConnect.SOQL_DATEFORMAT), 
-#                to_date.strftime(SalesforceConnect.SOQL_DATEFORMAT))
-#
-##                Id IN (
-##                    'a3wD0000001DBEcIAO', 'a3wD0000001DB6mIAG', 'a3wD0000001DBBeIAO', 'a3wD0000001DBFAIA4',
-##                    'a3wD0000001DAo4IAG', 'a3wD0000001DAeeIAG', 'a3wD0000001DAfMIAW')  AND
-##
-#    print("query = {:s}" . format(query))
-#    records = app.salesforce.query_all(query)
-#
-#    for record in records['records']:
-#        print(u"-" * 21 + "+" + "-"*80)
-#        for key, value in record.items():
-#            if key <> 'attributes':
-#                print(u"{:<20} | {}" . format(key, value))

@@ -105,3 +105,10 @@ ENV/
 
 # folder with excel files...
 files/
+
+# vim-session
+.session
+
+# tmp-files
+*~
+*.swp

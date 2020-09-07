@@ -7,8 +7,6 @@ Einlesen der Issues aus einer Excel-Datei
 TODO: Überschriften Case-Insensitive
 """
 
-from __future__ import print_function
-
 import os, sys
 import exceptions
 import copy
@@ -16,7 +14,7 @@ import string
 import xlrd
 
 from salesforce_connect import SalesforceConnect
-from simple_salesforce.exceptions import SalesforceGeneralError
+from simple_salesforce.exceptions import SalesforceGeneralError, SalesforceResourceNotFound
 
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'exceptions')))
 
@@ -52,7 +50,11 @@ class Issues(object):
                     format(row_idx, row['id'], row['data']))
             try:
                 self._app.salesforce.Shopper_Inspection__c.update(row['id'], row['data'])
-            except SalesforceGeneralError, msg:
+            except SalesforceResourceNotFound as msg:
+                print(msg)
+                pass
+            except SalesforceGeneralError as msg:
+                print("row = {}".format(row))
                 sys.exit(msg)
 
             if not self._app.options.quiet:
@@ -80,7 +82,7 @@ class Issues(object):
                 data[u"BT_Issue__c"] = cell_obj.value
             elif caption.lower().startswith('sw'):
                 data[u"SW_Issue__c"] = cell_obj.value
-            elif caption.lower().startswith('date') and cell_obj.value <> '':
+            elif caption.lower().startswith('date') and cell_obj.value != '':
                 data[u"SW_Issue_Solved_Date__c"] = cell_obj.value
             elif caption.lower().startswith('status'):
                 data[u"Status__c"] = cell_obj.value
