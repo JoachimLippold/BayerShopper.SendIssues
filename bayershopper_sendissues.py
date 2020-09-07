@@ -111,7 +111,7 @@ class App(object):
 
     def initOptionParser(self):
         u"""
-            Option-Parser initialiseren.
+            Option-Parser initialisieren.
 
             Das Skript kann mit diversen Optionen aufgerufen werden. Diese werden vom OptionParser
             verarbeitet. Aktuell sind folgende Optionen möglich:

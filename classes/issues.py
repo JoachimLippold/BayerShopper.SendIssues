@@ -48,7 +48,7 @@ class Issues(object):
         cols = self.sheet.ncols
         for row_idx in range(1, self.sheet.nrows):
             row = self.getRowObject(self.sheet.row(row_idx))
-            self._app.logger.debug('Row: {0:3d} - Id: {1:s}, Data: {2:s}' . \
+            self._app.logger.debug('Row: {} - Id: {}, Data: {}' . \
                     format(row_idx, row['id'], row['data']))
             try:
                 self._app.salesforce.Shopper_Inspection__c.update(row['id'], row['data'])
